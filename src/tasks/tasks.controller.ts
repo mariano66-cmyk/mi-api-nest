@@ -28,6 +28,7 @@ export class TasksController {
   @ApiResponse({ status: 200, description: 'Lista de tareas.', type: [Task] })
   @Get()
   findAll() {
+    console.log('--- Alguien está consultando todas las tareas ---');
     return this.tasksService.findAll();
   }
 
