@@ -3,8 +3,15 @@ import { IsNotEmpty, IsString, MaxLength, IsIn, IsOptional } from 'class-validat
 export class CreateTaskDto {
   @IsString()
   @IsNotEmpty({ message: 'El título no puede estar vacío' })
-  @MaxLength(100, { message: 'El título no puede tener más de 100 caracteres' })
+  @MaxLength(50, { message: 'El título no puede tener más de 50 caracteres' })
   title: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'La prioridad no puede estar vacía' })
+  @IsIn(['low', 'medium', 'high'], {
+    message: 'La prioridad debe ser low, medium o high',
+  })
+  priority: string;
 
   @IsString()
   @IsNotEmpty({ message: 'La descripción no puede estar vacía' })
