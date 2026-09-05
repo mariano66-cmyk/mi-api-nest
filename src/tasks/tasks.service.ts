@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -20,6 +20,17 @@ export class TasksService {
     const task = await this.taskRepository.findOneBy({ id });
     if (!task) throw new NotFoundException(`Tarea ${id} no encontrada`);
     return task;
+  }
+
+  async search(q?: string): Promise<Task[]> {
+    if (!q || q.trim() === '') {
+      return this.taskRepository.find();
+    }
+    return this.taskRepository.find({
+      where: {
+        title: Like(`%${q}%`),
+      },
+    });
   }
 
   async create(dto: CreateTaskDto): Promise<Task> {

@@ -1,19 +1,18 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, MaxLength, IsIn, IsOptional } from 'class-validator';
 
 export class CreateTaskDto {
-  @ApiProperty({ description: 'Título de la tarea', example: 'Aprender NestJS' })
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'El título no puede estar vacío' })
+  @MaxLength(100, { message: 'El título no puede tener más de 100 caracteres' })
   title: string;
 
-  @ApiPropertyOptional({ description: 'Descripción detallada', example: 'Completar el módulo 6' })
   @IsString()
-  @IsOptional()
-  description?: string;
+  @IsNotEmpty({ message: 'La descripción no puede estar vacía' })
+  description: string;
 
-  @ApiPropertyOptional({ description: 'Estado: pending | in_progress | done', example: 'pending', default: 'pending' })
-  @IsString()
   @IsOptional()
+  @IsIn(['pending', 'in_progress', 'done'], {
+    message: 'El status debe ser pending, in_progress o done',
+  })
   status?: string;
 }
