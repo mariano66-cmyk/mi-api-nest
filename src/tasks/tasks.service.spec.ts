@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-/* oxlint-disable no-undef */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
@@ -20,7 +19,7 @@ describe('TasksService - findOne', () => {
 
   beforeEach(async () => {
     mockRepository = {
-      findOneBy: (globalThis as any).jest?.fn() ?? (jest as any).fn(),
+      findOneBy: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +33,7 @@ describe('TasksService - findOne', () => {
     }).compile();
 
     service = module.get<TasksService>(TasksService);
+    vi.clearAllMocks();
   });
 
   it('debe retornar una tarea si existe el id', async () => {
