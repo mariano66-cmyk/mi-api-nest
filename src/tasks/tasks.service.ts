@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
@@ -9,43 +13,71 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TasksService {
   constructor(
     @InjectRepository(Task)
-    private taskRepository: Repository<Task>,
+    private readonly taskRepository: Repository<Task>,
   ) {}
 
-  findAll(): Promise<Task[]> {
-    return this.taskRepository.find();
+  async findAll(): Promise<Task[]> {
+    try {
+      return await this.taskRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener el listado de tareas',
+      );
+    }
   }
 
   async findOne(id: number): Promise<Task> {
     const task = await this.taskRepository.findOneBy({ id });
-    if (!task) throw new NotFoundException(`Tarea ${id} no encontrada`);
+    if (!task) {
+      throw new NotFoundException(`Tarea con id ${id} no encontrada`);
+    }
     return task;
   }
 
   async search(q?: string): Promise<Task[]> {
-    if (!q || q.trim() === '') {
-      return this.taskRepository.find();
+    try {
+      if (!q || q.trim() === '') {
+        return await this.findAll();
+      }
+      return await this.taskRepository.find({
+        where: {
+          title: Like(`%${q.trim()}%`),
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar tareas');
     }
-    return this.taskRepository.find({
-      where: {
-        title: Like(`%${q}%`),
-      },
-    });
   }
 
   async create(dto: CreateTaskDto): Promise<Task> {
-    const task = this.taskRepository.create(dto);
-    return await this.taskRepository.save(task);
+    try {
+      const task = this.taskRepository.create(dto);
+      return await this.taskRepository.save(task);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear la tarea');
+    }
   }
 
   async update(id: number, dto: UpdateTaskDto): Promise<Task> {
     const task = await this.findOne(id);
-    Object.assign(task, dto);
-    return await this.taskRepository.save(task);
+    try {
+      Object.assign(task, dto);
+      return await this.taskRepository.save(task);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar la tarea ${id}`,
+      );
+    }
   }
 
   async remove(id: number): Promise<void> {
     const task = await this.findOne(id);
-    await this.taskRepository.remove(task);
+    try {
+      await this.taskRepository.remove(task);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al eliminar la tarea ${id}`,
+      );
+    }
   }
 }
