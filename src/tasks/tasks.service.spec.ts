@@ -1,4 +1,5 @@
-/// <reference types="jest" />
+/* eslint-disable no-undef */
+/* oxlint-disable no-undef */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
@@ -19,7 +20,7 @@ describe('TasksService - findOne', () => {
 
   beforeEach(async () => {
     mockRepository = {
-      findOneBy: jest.fn(),
+      findOneBy: (globalThis as any).jest?.fn() ?? (jest as any).fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -33,7 +34,6 @@ describe('TasksService - findOne', () => {
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    jest.clearAllMocks();
   });
 
   it('debe retornar una tarea si existe el id', async () => {
